@@ -130,8 +130,7 @@ class DrawingView(context: Context, attrs: AttributeSet?) : View(context, attrs)
                 Log.d("DrawingView", "Updated allCoordinates: $allCoordinates")
 
                 val features = getProcessedFeatures(this) // Ensure this returns a FloatArray
-                Log.d("ProcessedFeatures", "Extracted Features: $features")
-                Log.d("ProcessedFeatures","Extracted Features List Size: ${features.size}")
+                System.out.println("Extracted Features: $features")
 
                 /*
                 val classifier = TFLiteClassifier(context)

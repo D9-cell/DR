@@ -95,7 +95,7 @@ fun DrawingViewScreen() {
             var offsetY by remember { mutableFloatStateOf(0f) }
 
             FloatingActionButton(
-                onClick = { showBrushBottomSheet = true },
+                onClick = {  drawingView.value?.clearCanvas() /*showBrushBottomSheet = true */},
                 modifier = Modifier
                     .offset { IntOffset(offsetX.roundToInt(), offsetY.roundToInt()) }
                     .padding(16.dp)
