@@ -1,4 +1,5 @@
 package com.example.dr.screen
+import ImageSelectionRow
 import android.content.Context
 import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
@@ -182,6 +183,9 @@ fun BrushBottomSheet(
                 }
 
             }
+
+            // New Image selection row
+            ImageSelectionRow()
         }
     }
 }
