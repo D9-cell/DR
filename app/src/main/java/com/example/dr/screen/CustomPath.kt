@@ -9,3 +9,4 @@ class CustomPath(var color: Int, var brushThickness: Float) : Path() {
         return "CustomPath(color=$color, brushThickness=$brushThickness, coordinates=$coordinates)"
     }
 }
+

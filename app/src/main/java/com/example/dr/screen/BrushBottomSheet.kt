@@ -1,7 +1,4 @@
 package com.example.dr.screen
-
-
-
 import android.content.Context
 import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
@@ -26,6 +23,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
@@ -33,25 +31,27 @@ import androidx.compose.ui.unit.sp
 import android.content.Intent
 import android.net.Uri
 import com.example.dr.R
-
+import androidx.compose.ui.tooling.preview.Preview
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BrushBottomSheet(
-    context: Context,
     onDismiss: () -> Unit,
     drawingView: DrawingView?,
     colors: List<Color>,
     backgroundColors: List<Color>,
     currentBrushSize: Float,
-    currentColorIndex: Int, // Keep track of the current brush color index
-    currentBackgroundColorIndex: Int, // Keep track of the current background color index
+    currentColorIndex: Int,
+    currentBackgroundColorIndex: Int,
     changeBrushSize: (Float) -> Unit,
     changeBrushColor: (Color) -> Unit,
     changeBackgroundColor: (Color) -> Unit,
-    updateCurrentColorIndex: (Int) -> Unit, // New parameter to update the color index
-    updateCurrentBackgroundColorIndex: (Int) -> Unit // New parameter to update the background color index
+    updateCurrentColorIndex: (Int) -> Unit,
+    updateCurrentBackgroundColorIndex: (Int) -> Unit,
+    // Inject the ViewModel
 ) {
+    val context = LocalContext.current // Get context for Toast
+
     ModalBottomSheet(onDismissRequest = onDismiss) {
         Column(modifier = Modifier.padding(16.dp)) {
             // Brush Size Selector
@@ -65,7 +65,7 @@ fun BrushBottomSheet(
                 value = currentBrushSize,
                 onValueChange = { size -> changeBrushSize(size) },
                 valueRange = 2f..18f,
-                steps = 16 // This allows the slider to jump by integer values
+                steps = 16
             )
             Spacer(modifier = Modifier.height(9.dp))
 
@@ -73,7 +73,7 @@ fun BrushBottomSheet(
                 horizontalArrangement = Arrangement.spacedBy(10.dp),
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clip(RoundedCornerShape(16.dp)) // Apply rounded corners
+                    .clip(RoundedCornerShape(16.dp))
                     .background(colorResource(id = R.color.lightGray))
                     .horizontalScroll(rememberScrollState())
             ) {
@@ -91,7 +91,7 @@ fun BrushBottomSheet(
                         colors = colors,
                         onColorSelected = { buttonIndex ->
                             changeBrushColor(colors[buttonIndex])
-                            updateCurrentColorIndex(buttonIndex) // Update current color index
+                            updateCurrentColorIndex(buttonIndex)
                         }
                     )
                 }
@@ -103,7 +103,7 @@ fun BrushBottomSheet(
                 horizontalArrangement = Arrangement.spacedBy(10.dp),
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clip(RoundedCornerShape(16.dp)) // Apply rounded corners
+                    .clip(RoundedCornerShape(16.dp))
                     .background(colorResource(id = R.color.lightGray))
                     .horizontalScroll(rememberScrollState())
             ) {
@@ -121,7 +121,7 @@ fun BrushBottomSheet(
                         colors = backgroundColors,
                         onColorSelected = { buttonIndex ->
                             changeBackgroundColor(backgroundColors[buttonIndex])
-                            updateCurrentBackgroundColorIndex(buttonIndex) // Update current background color index
+                            updateCurrentBackgroundColorIndex(buttonIndex)
                         }
                     )
                 }
@@ -163,15 +163,15 @@ fun BrushBottomSheet(
                 IconButton(
                     onClick = {
                         drawingView?.let { view ->
-                            val bitmap = view.getBitmap(backgroundColors[currentBackgroundColorIndex]) // Pass the current background color
+                            val bitmap = view.getBitmap(backgroundColors[currentBackgroundColorIndex])
                             val uri =
-                                drawingView.saveBitmap(context, bitmap) // Save the bitmap and get the URI
+                                drawingView.saveBitmap(context, bitmap)
                             if (uri != null) {
-                                shareBitmap(context, uri) // Share the saved bitmap
+                                shareBitmap(context, uri)
                             }
                         }
                     },
-                    modifier = Modifier.size(56.dp) // Set the size for the IconButton
+                    modifier = Modifier.size(56.dp)
                 ) {
                     Icon(
                         painter = painterResource(R.drawable.share),
@@ -180,19 +180,11 @@ fun BrushBottomSheet(
                         modifier = Modifier.size(32.dp)
                     )
                 }
-                IconButton(onClick = { }) {
-                    Icon(
-                        painter = painterResource(R.drawable.ai),
-                        contentDescription = "Eraser",
-                        tint = Color.Unspecified,
-                        modifier = Modifier.size(32.dp)
-                    )
-                }
+
             }
         }
     }
 }
-
 
 
 private fun shareBitmap(context: Context, uri: Uri) {
@@ -204,7 +196,6 @@ private fun shareBitmap(context: Context, uri: Uri) {
     }
     context.startActivity(Intent.createChooser(shareIntent, "Share Drawing"))
 }
-
 /*
 private fun saveBitmapAndShare(context: Context, bitmap: Bitmap) {
     val file = File(context.getExternalFilesDir(Environment.DIRECTORY_PICTURES), "Drawing_${System.currentTimeMillis()}.png")
@@ -229,4 +220,21 @@ private fun saveBitmapAndShare(context: Context, bitmap: Bitmap) {
     }
 }*/
 
-
+@Preview(showBackground = true)
+@Composable
+fun BrushBottomSheetPreview() {
+    BrushBottomSheet(
+        onDismiss = {},
+        drawingView = null, // Cannot provide a real DrawingView in preview
+        colors = listOf(Color.Black, Color.Red, Color.Green, Color.Blue),
+        backgroundColors = listOf(Color.White, Color.LightGray, Color.Yellow),
+        currentBrushSize = 5f,
+        currentColorIndex = 0,
+        currentBackgroundColorIndex = 0,
+        changeBrushSize = {},
+        changeBrushColor = {},
+        changeBackgroundColor = {},
+        updateCurrentColorIndex = {},
+        updateCurrentBackgroundColorIndex = {},
+    )
+}

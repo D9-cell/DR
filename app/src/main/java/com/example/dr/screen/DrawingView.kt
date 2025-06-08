@@ -15,10 +15,10 @@ import android.view.View
 import android.widget.Toast
 import androidx.compose.ui.graphics.toArgb
 import androidx.core.content.FileProvider
-import com.example.dr.TFLiteClassifier
-import com.example.dr.getProcessedFeatures
 import java.io.File
 import java.io.FileOutputStream
+import androidx.core.graphics.createBitmap
+import androidx.core.graphics.toColorInt
 
 class DrawingView(context: Context, attrs: AttributeSet?) : View(context, attrs) {
     private var mDrawPath: CustomPath? = null
@@ -47,25 +47,6 @@ class DrawingView(context: Context, attrs: AttributeSet?) : View(context, attrs)
         allCoordinates.addAll(mPaths.map { it.coordinates })
     }
 
-    // Undo functionality
-    fun onClickUndo() {
-        if (mPaths.isNotEmpty()) {
-            mUndoPaths.add(mPaths.removeAt(mPaths.size - 1))
-            mRedoPaths.clear()
-            updateAllCoordinates() // Update after undo
-            invalidate()
-        }
-    }
-
-    // Redo functionality
-    fun onClickRedo() {
-        if (mUndoPaths.isNotEmpty()) {
-            mPaths.add(mUndoPaths.removeAt(mUndoPaths.size - 1))
-            updateAllCoordinates() // Update after redo
-            invalidate()
-        }
-    }
-
     // Clear the canvas
     fun clearCanvas() {
         mPaths.clear()
@@ -87,7 +68,7 @@ class DrawingView(context: Context, attrs: AttributeSet?) : View(context, attrs)
 
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
         super.onSizeChanged(w, h, oldw, oldh)
-        mCanvasBitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888)
+        mCanvasBitmap = createBitmap(w, h)
         canvas = Canvas(mCanvasBitmap!!)
     }
 
@@ -103,6 +84,29 @@ class DrawingView(context: Context, attrs: AttributeSet?) : View(context, attrs)
             mDrawPaint!!.strokeWidth = mDrawPath!!.brushThickness
             mDrawPaint!!.color = mDrawPaint!!.color
             canvas.drawPath(mDrawPath!!, mDrawPaint!!)
+        }
+    }
+
+    // Redo functionality
+    fun onClickRedo() {
+        if (mUndoPaths.isNotEmpty()) {
+            mPaths.add(mUndoPaths.removeAt(mUndoPaths.size - 1))
+            updateAllCoordinates() // Update after redo
+            Log.d("DrawingView","After Redo : $allCoordinates")
+            Log.d("DrawingView","After Redo : ${allCoordinates.size}")
+            invalidate()
+        }
+    }
+
+    // Undo functionality
+    fun onClickUndo() {
+        if (mPaths.isNotEmpty()) {
+            mUndoPaths.add(mPaths.removeAt(mPaths.size - 1))
+            mRedoPaths.clear()
+            updateAllCoordinates() // Update after undo
+            Log.d("DrawingView","After Undo : $allCoordinates")
+            Log.d("DrawingView","After Undo : ${allCoordinates.size}")
+            invalidate()
         }
     }
 
@@ -129,45 +133,6 @@ class DrawingView(context: Context, attrs: AttributeSet?) : View(context, attrs)
                 updateAllCoordinates() // Update after new path
                 Log.d("DrawingView", "Updated allCoordinates: $allCoordinates")
 
-                val features = getProcessedFeatures(this) // Ensure this returns a FloatArray
-                //System.out.println("Extracted Features: $features")
-
-                /*
-                val classifier = TFLiteClassifier(context)
-                try {
-                    val predictedClassIndex = classifier.predict(features)
-                    val labelClasses = arrayOf(
-                        "A/अ/অ","AA/आ/আ","ADA/ढ़/ঢ","AN/ं/ং",
-                        "BA/ब/ব","BHA/भ/ভ","BI/ः/ঃ",
-                        "C/च/চ","CH/छ/ছ","CN/ँ/ঁ",
-                        "DA/द/দ","DDA/ड/ড","DDH/ढ/ঢ","DHA/ध/ধ","DRA/ड़/ড়",
-                        "E/ए/এ","EN/ञ/ঞ",
-                        "G/ग/গ","GH/घ/ঘ",
-                        "HA/ह/হ",
-                        "I/इ/ই","II/ई/ঈ",
-                        "JA/ज/জ","JH/झ/ঝ",
-                        "K/क/ক","KH/ख/খ","KT/त्/ৎ",
-                        "LA/ल/ল",
-                        "MA/म/ম","MN/ण/ণ","MSA/ष/ষ",
-                        "NA/न/ন",
-                        "O/ओ/ও","OI/ऐ/ঐ","OU/औ/ঔ",
-                        "PA/प/প","PHA/फ/ফ",
-                        "RA/र/র","RI/ऋ/ঋ",
-                        "S/स/স","SA/श/শ",
-                        "T/ट/ট","TA/त/ত","THA/थ/থ","TTA/ठ/ঠ",
-                        "U/उ/উ","UN/ङ/ঙ","UU/ऊ/ঊ",
-                        "Y/य़/য়","YA/य/য"
-                    )
-                    val predictedChar = labelClasses[predictedClassIndex]
-                    Log.d("Prediction", "Predicted Class Index: $predictedClassIndex")
-                    Log.d("Prediction", "Predicted Character: $predictedChar")
-                    Toast.makeText(context, "Predicted Character: $predictedChar", Toast.LENGTH_LONG).show()
-                } catch (e: IllegalArgumentException) {
-                    Log.e("TFLiteClassifier", "Prediction failed: ${e.message}")
-                    Toast.makeText(context, "Draw a complete character and try again", Toast.LENGTH_SHORT).show()
-                }
-                 */
-
                 mDrawPath = CustomPath(color, mBrushSize)
             }
         }
@@ -183,7 +148,7 @@ class DrawingView(context: Context, attrs: AttributeSet?) : View(context, attrs)
 
     // Set color method
     fun setColor(currentColor: String) {
-        color = Color.parseColor(currentColor)
+        color = currentColor.toColorInt()
         mDrawPaint!!.color = color // Update your paint object if you have one
         invalidate() // Redraw the view
     }
@@ -194,7 +159,7 @@ class DrawingView(context: Context, attrs: AttributeSet?) : View(context, attrs)
 
     fun getBitmap(currentBackgroundColor: androidx.compose.ui.graphics.Color): Bitmap {
         // Create a bitmap with the same size as the drawing view
-        val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+        val bitmap = createBitmap(width, height)
 
         // Create a canvas to draw onto the bitmap
         val canvas = Canvas(bitmap)

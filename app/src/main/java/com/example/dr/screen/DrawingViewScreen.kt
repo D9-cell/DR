@@ -13,14 +13,14 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
-import com.example.dr.R
 import kotlin.math.roundToInt
+import com.example.dr.R
 
 @Composable
 fun DrawingViewScreen() {
@@ -30,7 +30,6 @@ fun DrawingViewScreen() {
     var backgroundColor by remember { mutableStateOf(Color.White) }
     var currentBackgroundColorIndex by remember { mutableIntStateOf(0) }
     var showBrushBottomSheet by remember { mutableStateOf(false) }
-    val context = LocalContext.current
 
     // Brush and background colors list
     val colors = listOf(
@@ -95,7 +94,7 @@ fun DrawingViewScreen() {
             var offsetY by remember { mutableFloatStateOf(0f) }
 
             FloatingActionButton(
-                onClick = {  drawingView.value?.clearCanvas() /*showBrushBottomSheet = true */},
+                onClick = { showBrushBottomSheet = true },
                 modifier = Modifier
                     .offset { IntOffset(offsetX.roundToInt(), offsetY.roundToInt()) }
                     .padding(16.dp)
@@ -121,7 +120,6 @@ fun DrawingViewScreen() {
         // Brush Bottom Sheet
         if (showBrushBottomSheet) {
             BrushBottomSheet(
-                context = context,
                 onDismiss = { showBrushBottomSheet = false },
                 drawingView = drawingView.value,
                 colors = colors,
@@ -137,4 +135,10 @@ fun DrawingViewScreen() {
             )
         }
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun DrawingViewScreenPreview() {
+  DrawingViewScreen()
 }
