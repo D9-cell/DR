@@ -54,7 +54,7 @@ fun ImageSelectionRow() {
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(16.dp))
-            .background(colorResource(id = R.color.lightGray)) // Assuming you have lightGray color
+            .background(colorResource(id = R.color.white)) // Assuming you have lightGray color
             .horizontalScroll(rememberScrollState())
     ) {
         // Image Selection Title
@@ -71,9 +71,6 @@ fun ImageSelectionRow() {
                 imageResIds = imageOptions, // Pass the list of all image resource IDs
                 onImageSelected = { buttonIndex ->
                     currentSelectedImageIndex = buttonIndex
-                    // Here you would typically perform an action with the selected image
-                    // For example, update a ViewModel or state that uses this image.
-                    // You can pass the actual image resource ID if needed: imageOptions[buttonIndex]
                     println("Selected image with ID: ${imageOptions[buttonIndex]}")
                 }
             )
